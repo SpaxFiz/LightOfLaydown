@@ -10,7 +10,6 @@ export default defineConfig({
     },
   },
   plugins: [vue()],
-  base: 'http://localhost:8080',
   server: {
     cors: true,
     origin: 'http://127.0.0.1:8080',

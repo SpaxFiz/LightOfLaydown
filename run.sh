@@ -1,3 +1,5 @@
+git pull
+
 pnpm --prefix ./webapp install
 pnpm --prefix ./webapp build
 
