@@ -44,8 +44,6 @@ const showStatus = (status: number) => {
 }
 
 const service = axios.create({
-  // 联调
-  // baseURL: process.env.NODE_ENV === 'production' ? `/` : '/api',
   baseURL: "/api",
   headers: {
       'Content-Type': 'application/json;charset=utf-8'
@@ -57,7 +55,6 @@ const service = axios.create({
     return data
   }],
   validateStatus() {
-    // 使用async-await，处理reject情况较为繁琐，所以全部返回resolve，在业务代码中处理异常
     return true
   },
   transformResponse: [(data) => {
@@ -69,16 +66,14 @@ const service = axios.create({
 })
 
 // service.interceptors.request.use((config: AxiosRequestConfig) => {
-//   //获取token，并将其添加至请求头中
 //   let token = localStorage.getItem('token')
 //   if(token){
 //     config.headers.Authorization = `${token}`;
 //   }
 //   return config
 // }, (error) => {
-//   // 错误抛到业务代码
 //   error.data = {}
-//   error.data.msg = '服务器异常，请联系管理员！'
+//   error.data.msg = 'internal error'
 //   return Promise.resolve(error)
 // })
 
@@ -86,7 +81,7 @@ service.interceptors.response.use((response: AxiosResponse) => {
   const status = response.status
   let msg = ''
   if (status < 200 || status >= 300) {
-    // 处理http错误，抛到业务代码
+
     msg = showStatus(status)
     if (typeof response.data === 'string') {
       response.data = { msg }

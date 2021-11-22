@@ -1,6 +1,7 @@
 <script  lang="ts">
 import { getEmAccountData } from '@/api/emData'
 import * as echarts from 'echarts'
+import { defineComponent } from 'vue'
 
 type EChartsOption = echarts.EChartsOption
 interface EMAccountData {
@@ -15,7 +16,7 @@ interface EMAccountData {
   [param: string]: any,
 }
 
-export default {
+export default defineComponent({
   methods: {
     setup() {
       getEmAccountData({})
@@ -123,7 +124,7 @@ export default {
       chartOption: {},
     }
   }
-}
+})
 
 </script>
 

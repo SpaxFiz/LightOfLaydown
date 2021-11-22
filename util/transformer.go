@@ -77,17 +77,17 @@ func RewriteDataStructJSON(input interface{}) (result interface{}, err error) {
 	for j := 0; j < rv.Len(); j++ {
 		rt := reflect.TypeOf(rv.Index(j).Interface()).Elem()
 		innerRv := reflect.ValueOf(rv.Index(j).Interface()).Elem()
-		result := make(map[string]interface{}, rt.NumField())
+		r := make(map[string]interface{}, rt.NumField())
 		for i := 0; i < rt.NumField(); i++ {
 			key := rt.Field(i).Tag.Get("ld")
 			if !innerRv.Field(i).IsValid() {
-				result[key] = reflect.Zero(rt.Field(i).Type).Interface()
+				r[key] = reflect.Zero(rt.Field(i).Type).Interface()
 			} else {
-				result[key] = innerRv.Field(i).Interface()
+				r[key] = innerRv.Field(i).Interface()
 			}
 		}
-		data[j] = result
+		data[j] = r
 	}
-	result = err
+	result = data
 	return result, err
 }
