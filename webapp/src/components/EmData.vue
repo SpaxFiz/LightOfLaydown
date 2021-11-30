@@ -10,8 +10,8 @@ interface EMAccountData {
   market_avg_value: number,
   market_total_value: number,
   new_investor: number,
-  new_investor_same_period_basis: number,
-  new_investor_sequential_basis: number,
+  new_investor_yoy: number,
+  new_investor_mom: number,
   sh_index: number,
   [param: string]: any,
 }
@@ -37,7 +37,7 @@ export default defineComponent({
         xData.push(item.date)
         yData.push(item.sh_index)
         newInvester.push(item.new_investor / 10)
-        cycleBasis.push(item.new_investor_sequential_basis * 100)
+        cycleBasis.push(item.new_investor_mom * 100)
       })
       let option: EChartsOption = {
         title: {
@@ -94,7 +94,7 @@ export default defineComponent({
             data: newInvester,
             type: 'bar',
             yAxisId: 'new_investor',
-            
+
           }, {
             name: '环比',
             data: cycleBasis,

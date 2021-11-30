@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
@@ -10,6 +11,8 @@ import (
 	"reflect"
 	"strings"
 )
+
+const DateLayout = "2006-01-02"
 
 var JSON = jsoniter.ConfigCompatibleWithStandardLibrary
 
@@ -65,29 +68,49 @@ func indexLastRuneInString(s string, char byte) int {
 	return -1
 }
 
-func RewriteDataStructJSON(input interface{}) (result interface{}, err error) {
-	defer func() {
-		if e := recover(); e != nil {
-			log.Errorf("RewriteDataStructJSON panic but recovered. err=%v", e)
-			err = e.(error)
-		}
-	}()
-	rv := reflect.ValueOf(input)
-	data := make([]map[string]interface{}, rv.Len())
-	for j := 0; j < rv.Len(); j++ {
-		rt := reflect.TypeOf(rv.Index(j).Interface()).Elem()
-		innerRv := reflect.ValueOf(rv.Index(j).Interface()).Elem()
-		r := make(map[string]interface{}, rt.NumField())
-		for i := 0; i < rt.NumField(); i++ {
-			key := rt.Field(i).Tag.Get("ld")
-			if !innerRv.Field(i).IsValid() {
-				r[key] = reflect.Zero(rt.Field(i).Type).Interface()
+func RewriteStructJSON(input interface{}) (result interface{}, err error) {
+	//defer func() {
+	//	if e := recover(); e != nil {
+	//		log.Errorf("RewriteStructJSON panic but recovered. err=%v", e)
+	//		err = e.(error)
+	//	}
+	//}()
+
+	rv := reflect.Indirect(reflect.ValueOf(input))
+	switch rv.Kind() {
+	case reflect.Struct:
+		return extractLDTag(rv)
+	case reflect.Slice:
+		data := make([]interface{}, rv.Len())
+		for j := 0; j < rv.Len(); j++ {
+			if r, e := RewriteStructJSON(rv.Index(j).Interface()); e != nil {
+				return nil, e
 			} else {
-				r[key] = innerRv.Field(i).Interface()
+				data[j] = r
 			}
 		}
-		data[j] = r
+		result = data
+		return result, err
 	}
-	result = data
-	return result, err
+	return nil, errors.New("unsupported type")
+}
+
+func extractLDTag(value reflect.Value) (map[string]interface{}, error) {
+	elem := reflect.Indirect(value)
+	if elem.Kind() != reflect.Struct {
+		return nil, errors.New("input should like []interface{}")
+	}
+	r := make(map[string]interface{}, elem.NumField())
+	for i := 0; i < elem.NumField(); i++ {
+		key, ok := elem.Type().Field(i).Tag.Lookup("ld")
+		if !ok {
+			key = elem.Type().Field(i).Tag.Get("json")
+		}
+		if !elem.Field(i).IsValid() {
+			r[key] = reflect.Zero(elem.Field(i).Type()).Interface()
+		} else {
+			r[key] = elem.Field(i).Interface()
+		}
+	}
+	return r, nil
 }

@@ -1,4 +1,4 @@
-package model
+package domain
 
 var param = map[string]interface{}{
 	"type":  "GPKHData",

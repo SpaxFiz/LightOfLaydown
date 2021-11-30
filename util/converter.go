@@ -1,11 +1,10 @@
 package util
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"math"
 	"strconv"
+	"time"
 )
 
 type TolerantFloat float64
@@ -50,8 +49,13 @@ func String(value interface{}) string {
 	return fmt.Sprintf("%v", value)
 }
 
-func Float64FromBytes(bytes []byte) float64 {
-	bits := binary.LittleEndian.Uint64(bytes)
-	float := math.Float64frombits(bits)
-	return float
+type CustomDate string
+
+func (c *CustomDate) UnmarshalJSON(b []byte) error {
+	if val, err := strconv.ParseInt(string(b), 10, 64); err != nil {
+		*c = "-"
+	} else {
+		*c = CustomDate(time.Unix(val/1000, 0).Format(DateLayout))
+	}
+	return nil
 }
