@@ -1,8 +1,8 @@
 package util
 
 import (
-	"github.com/robertkrimen/otto"
 	"github.com/sirupsen/logrus"
+	"github.com/spaxfiz/otto"
 	"strings"
 	"time"
 )

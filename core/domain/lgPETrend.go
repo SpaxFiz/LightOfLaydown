@@ -1,4 +1,4 @@
-// @program: LightOfLaydown
+// @program: unjuanable
 // @author: Fizzy
 // @created: 2021-11-25
 // @description: PE trending of Chinese A stock market
@@ -6,11 +6,11 @@
 package domain
 
 import (
-	"SpaxFiz/LaydownLight/core/storage"
-	"SpaxFiz/LaydownLight/util"
 	"encoding/gob"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/spaxfiz/unjuanable/core/storage"
+	"github.com/spaxfiz/unjuanable/util"
 	"sort"
 	"sync"
 	"time"
@@ -88,7 +88,7 @@ func (P *PETrend) Fetch() error {
 				current := struct {
 					Data []*PERecord `json:"data"`
 				}{}
-				if err := util.EasyGet(PEURL, param, nil, &current); err != nil {
+				if err := util.EasyGet(PEURL, param, nil, &current, nil); err != nil {
 					log.Errorf("error occur when request PEURL. err=%s", err.Error())
 					return
 				}

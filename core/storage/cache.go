@@ -1,4 +1,4 @@
-// @program: LightOfLaydown
+// @program: unjuanable
 // @author: Fizzy
 // @created: 2021-11-25
 
@@ -8,12 +8,11 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spaxfiz/unjuanable/config"
 	"reflect"
 	"sync"
 	"time"
 )
-
-const defaultCacheFilePath = "/tmp/llcache"
 
 var (
 	defaultIns *Cache
@@ -21,7 +20,8 @@ var (
 )
 
 type Cache struct {
-	c *cache.Cache
+	c    *cache.Cache
+	lock sync.Mutex
 }
 
 func GetCache() *Cache {
@@ -29,8 +29,9 @@ func GetCache() *Cache {
 	defer lock.Unlock()
 
 	if defaultIns == nil {
-		defaultCache := cache.New(time.Hour*6, time.Hour*6)
-		if err := defaultCache.LoadFile(defaultCacheFilePath); err != nil {
+		duration := time.Duration(config.GlobalConfig.Server.Cache.CacheDurationSecond) * time.Second
+		defaultCache := cache.New(duration, duration)
+		if err := defaultCache.LoadFile(config.GlobalConfig.Server.Cache.CachePath); err != nil {
 			logrus.Warnf("load cache file failed. cache will be empty. err=%v", err)
 		}
 		defaultIns = &Cache{c: defaultCache}
@@ -45,6 +46,7 @@ func GetCache() *Cache {
 func (c *Cache) LoadOrDo(key string, restore interface{}, fn func() (shouldCache interface{}, err error)) error {
 	restoreVal := reflect.Indirect(reflect.ValueOf(restore))
 
+ReadCache:
 	if val, hit := c.c.Get(key); hit {
 		cacheType := reflect.TypeOf(val).Kind().String()
 
@@ -57,6 +59,11 @@ func (c *Cache) LoadOrDo(key string, restore interface{}, fn func() (shouldCache
 		} else {
 			return errors.Errorf("incompatible cache type, got=%s, want=%s", cacheType, restoreVal.Kind().String())
 		}
+	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	if _, hit := c.c.Get(key); hit {
+		goto ReadCache
 	}
 	if shouldCache, err := fn(); err != nil {
 		return err
@@ -87,7 +94,7 @@ func (c *Cache) Load(key string) (val interface{}, ok bool) {
 // PersistCache
 // @description save current cache to local file, wait for next program startup then load
 func (c *Cache) PersistCache() error {
-	return c.c.SaveFile(defaultCacheFilePath)
+	return c.c.SaveFile(config.GlobalConfig.Server.Cache.CachePath)
 }
 
 func beforeTomorrowDuration() time.Duration {

@@ -38,6 +38,9 @@ func ParseBodyWithTrimAsJSON(body io.ReadCloser, trim *TrimBound, result interfa
 	if err != nil {
 		return err
 	}
+	if _, ok := result.(*string); ok {
+		*(result.(*string)) = jsonStr
+	}
 	if err := JSON.UnmarshalFromString(jsonStr, &result); err != nil {
 		log.Error("parse body failed. err=%s", err.Error())
 		return err

@@ -6,24 +6,24 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  resolve: {
-    alias: {
-    '@': path.resolve(__dirname, './src')
-    },
+  'resolve': {
+    'alias': {
+      '@': path.resolve(__dirname, './src')
+    }
   },
-  plugins: [
+  'plugins': [
     vue(),
     Components({
-      resolvers: [ElementPlusResolver()],
-    }),
+      'resolvers': [ElementPlusResolver()]
+    })
   ],
-  server: {
-    cors: true,
-    origin: 'http://127.0.0.1:8080',
-    proxy: {
+  'server': {
+    'cors': true,
+    'origin': 'http://127.0.0.1:8080',
+    'proxy': {
       '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
+        'target': 'http://localhost:8080',
+        'changeOrigin': true
       }
     }
   }

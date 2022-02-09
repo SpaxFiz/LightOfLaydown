@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"strconv"
 	"time"
 )
@@ -58,4 +59,38 @@ func (c *CustomDate) UnmarshalJSON(b []byte) error {
 		*c = CustomDate(time.Unix(val/1000, 0).Format(DateLayout))
 	}
 	return nil
+}
+
+func AnyNum2Float64(in interface{}) (out float64, err error) {
+	switch in.(type) {
+	case float32:
+		out = float64(in.(float32))
+	case float64:
+		out = in.(float64)
+	case int:
+		out = float64(in.(int))
+	case int8:
+		out = float64(in.(int8))
+	case int16:
+		out = float64(in.(int16))
+	case int32:
+		out = float64(in.(int32))
+	case int64:
+		out = float64(in.(int64))
+	case uint8:
+		out = float64(in.(uint8))
+	case uint16:
+		out = float64(in.(uint16))
+	case uint32:
+		out = float64(in.(uint32))
+	case string:
+		o, err := strconv.ParseFloat(in.(string), 10)
+		if err != nil {
+			return 0, errors.New("invalid input type, check if input is float")
+		}
+		out = o
+	default:
+		return 0, errors.New("invalid input type, check if input is float")
+	}
+	return out, nil
 }

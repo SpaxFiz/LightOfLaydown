@@ -1,8 +1,8 @@
 import request from './request'
 
-export function getPEData(params: Object ) {
+export function getIndustryPEData() {
   return request({
-    'url': '/lg_pe_data',
+    'url': '/industry_pe_data',
     'method': 'get'
   }
   )

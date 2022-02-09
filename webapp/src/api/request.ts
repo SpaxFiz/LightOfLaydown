@@ -2,8 +2,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 const showStatus = (status: number) => {
-  let message = ''
-  switch (status) {
+    let message = ''
+
+    switch (status) {
     case 400:
       message = '请求错误(400)'
       break
@@ -39,31 +40,31 @@ const showStatus = (status: number) => {
       break
     default:
       message = `连接出错(${status})!`
-  }
-  return `${message}`
-}
-
-const service = axios.create({
-  baseURL: "/api",
-  headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-  },
-  withCredentials: false,
-  timeout: 30000,
-  transformRequest: [(data) => {
-    data = JSON.stringify(data)
-    return data
-  }],
-  validateStatus() {
-    return true
-  },
-  transformResponse: [(data) => {
-    if (typeof data === 'string' && data.startsWith('{')) {
-      data = JSON.parse(data)
     }
-    return data
-  }]
-})
+    return `${message}`
+  },
+
+  service = axios.create({
+    'baseURL': '/api',
+    'headers': {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    'withCredentials': false,
+    'timeout': 30000,
+    'transformRequest': [(data) => {
+      data = JSON.stringify(data)
+      return data
+    }],
+    validateStatus() {
+      return true
+    },
+    'transformResponse': [(data) => {
+      if (typeof data === 'string' && data.startsWith('{')) {
+        data = JSON.parse(data)
+      }
+      return data
+    }]
+  })
 
 // service.interceptors.request.use((config: AxiosRequestConfig) => {
 //   let token = localStorage.getItem('token')
@@ -80,6 +81,7 @@ const service = axios.create({
 service.interceptors.response.use((response: AxiosResponse) => {
   const status = response.status
   let msg = ''
+
   if (status < 200 || status >= 300) {
 
     msg = showStatus(status)
@@ -99,4 +101,4 @@ service.interceptors.response.use((response: AxiosResponse) => {
   return Promise.reject(error)
 })
 
-export default service 
+export default service
