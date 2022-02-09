@@ -1,7 +1,9 @@
 <script lang="ts">
+
 import { checkCipher } from '@/api/cipher'
 import { defineComponent } from 'vue'
 import { ElMessage as elMessage } from 'element-plus'
+import bg from '@/assets/bg'
 
 export default defineComponent({
   emits: ['VALIDCIPHER'],
@@ -21,7 +23,7 @@ export default defineComponent({
   data() {
     return {
       cipher: '',
-      imgPath: '/api/background'
+      bg: bg
     }
   }
 })
@@ -29,7 +31,7 @@ export default defineComponent({
 
 <template>
   <div class="bg">
-    <img :src="imgPath" alt=""/>
+    <img :src="bg" alt=""/>
   </div>
 
   <div class="cipher">
